@@ -116,6 +116,16 @@ resource "aws_iam_role_policy_attachment" "node_AmazonSSMManagedInstanceCore" {
   role       = aws_iam_role.eks-node-role.name
 }
 
+resource "aws_iam_role_policy_attachment" "eks-node-dynamodb-policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
+  role       = aws_iam_role.eks-node-role.name
+}
+
+resource "aws_iam_role_policy_attachment" "eks-node-s3-policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  role       = aws_iam_role.eks-node-role.name
+}
+
 resource "aws_iam_role_policy_attachment" "eks-node-registry-policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
   role       = aws_iam_role.eks-node-role.name
