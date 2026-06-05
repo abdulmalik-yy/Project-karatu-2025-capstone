@@ -399,7 +399,7 @@ resource "helm_release" "catalog" {
   }
   set {
     name  = "app.persistence.secret.password"
-    value = var.mysql_password
+    value = replace(var.mysql_password, ",", "\\,")
   }
 
   depends_on = [helm_release.aws_load_balancer_controller]
@@ -472,7 +472,7 @@ resource "helm_release" "orders" {
   }
   set {
     name  = "app.persistence.secret.password"
-    value = var.postgres_password
+    value = replace(var.postgres_password, ",", "\\,")
   }
 
   depends_on = [helm_release.checkout]
@@ -488,6 +488,23 @@ resource "helm_release" "ui" {
   set {
     name  = "service.type"
     value = "LoadBalancer"
+  }
+
+  set {
+    name  = "app.endpoints.catalog"
+    value = "http://catalog:80"
+  }
+  set {
+    name  = "app.endpoints.carts"
+    value = "http://carts:80"
+  }
+  set {
+    name  = "app.endpoints.orders"
+    value = "http://orders:80"
+  }
+  set {
+    name  = "app.endpoints.checkout"
+    value = "http://checkout:80"
   }
 
   depends_on = [
