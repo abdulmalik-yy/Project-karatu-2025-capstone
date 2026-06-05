@@ -66,4 +66,4 @@ spec:
               service:
                 name: ui               # name of the Kubernetes Service for the frontend
                 port:
-                  number: 8080         # the port the ui container listens on
+                  number: 80           # the port the ui container listens on
