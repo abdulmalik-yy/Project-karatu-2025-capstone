@@ -487,7 +487,7 @@ resource "helm_release" "ui" {
 
   set {
     name  = "service.type"
-    value = "LoadBalancer"
+    value = "ClusterIP"
   }
 
   set {
