@@ -1,14 +1,5 @@
 #--CLOUDWATCH LOG GROUP FOR EKS--#
 
-resource "aws_cloudwatch_log_group" "project-bedrock-eks-cluster-logs" {
-  name              = "/aws/eks/${var.eks_cluster_name}/cluster"
-  retention_in_days = 30
-  kms_key_id        = "alias/aws/logs"
-  tags = {
-    Name = "project-bedrock-eks-cluster-logs"
-  }
-}
-
 resource "aws_cloudwatch_log_group" "application_logs" {
   name              = "/aws/eks/${var.eks_cluster_name}/application"
   retention_in_days = 14
@@ -69,7 +60,7 @@ resource "aws_iam_role_policy_attachment" "cw_logs_full_access" {
 #cloudwatch observability for eks add-ONS
 resource "aws_eks_addon" "observability" {
   cluster_name                = var.eks_cluster_name
-  addon_name                  = "cloudwatch-observability"
+  addon_name                  = "amazon-cloudwatch-observability"
   resolve_conflicts_on_update = "OVERWRITE"
   service_account_role_arn    = aws_iam_role.cwagent_role.arn
   tags = {
@@ -134,7 +125,7 @@ resource "aws_eks_access_entry" "dev" {
 }
 
 resource "aws_eks_access_policy_association" "dev_view" {
-  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/view-cluster"
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSViewPolicy"
   cluster_name  = var.eks_cluster_name
   principal_arn = aws_iam_user.dev.arn
 

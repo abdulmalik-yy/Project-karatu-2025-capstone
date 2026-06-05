@@ -162,7 +162,7 @@ resource "aws_db_instance" "postgres" {
   identifier              = "project-bedrock-postgres"
   engine                  = "postgres"
   engine_version          = "15"
-  instance_class          = "db.t3.small"
+  instance_class          = "db.t3.micro"
   allocated_storage       = 20
   storage_type            = "gp3"
   max_allocated_storage   = 100
