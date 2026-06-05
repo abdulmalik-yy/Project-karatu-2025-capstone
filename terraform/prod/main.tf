@@ -18,6 +18,7 @@ module "network" {
   private_subnet_02_cidr = "10.0.4.0/24"
   availability_zone_1    = "us-east-1a"
   availability_zone_2    = "us-east-1b"
+  eks_cluster_name       = var.cluster_name
 }
 
 # -- 2. COMPUTE (EKS) -----------------------------------------

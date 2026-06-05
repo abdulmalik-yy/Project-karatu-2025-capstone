@@ -16,8 +16,9 @@ resource "aws_subnet" "public-subnet-01" {
   cidr_block        = var.public_subnet_01_cidr
   availability_zone = var.availability_zone_1
   tags = {
-    Name = "public-subnet-01"
-    "kubernetes.io/role/elb" = "1"
+    Name                                        = "public-subnet-01"
+    "kubernetes.io/role/elb"                    = "1"
+    "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
   }
 }
 
@@ -26,8 +27,9 @@ resource "aws_subnet" "public-subnet-02" {
   cidr_block        = var.public_subnet_02_cidr
   availability_zone = var.availability_zone_2
   tags = {
-    Name = "public-subnet-02"
-    "kubernetes.io/role/elb" = "1"
+    Name                                        = "public-subnet-02"
+    "kubernetes.io/role/elb"                    = "1"
+    "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
   }
 }
 
@@ -36,8 +38,9 @@ resource "aws_subnet" "private-subnet-01" {
   cidr_block        = var.private_subnet_01_cidr
   availability_zone = var.availability_zone_1
   tags = {
-    Name = "private-subnet-01"
-    "kubernetes.io/role/internal-elb" = "1"
+    Name                                        = "private-subnet-01"
+    "kubernetes.io/role/internal-elb"           = "1"
+    "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
   }
 }
 
@@ -46,8 +49,9 @@ resource "aws_subnet" "private-subnet-02" {
   cidr_block        = var.private_subnet_02_cidr
   availability_zone = var.availability_zone_2
   tags = {
-    Name = "private-subnet-02"
-    "kubernetes.io/role/internal-elb" = "1"
+    Name                                        = "private-subnet-02"
+    "kubernetes.io/role/internal-elb"           = "1"
+    "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
   }
 }
 
