@@ -83,13 +83,15 @@ jobs:
 
       - name: Debug Cluster Status
         run: |
-          echo "--- PODS ---"
+          echo "--- RESTARTING ALL PODS ---"
+          kubectl rollout restart deploy -n retail-app --all
+          echo "Sleeping 45 seconds to let pods schedule..."
+          sleep 45
+          echo "--- PODS AFTER RESTART ---"
           kubectl get pods -n retail-app
+          echo "--- POD EVENTS (IF PENDING) ---"
+          kubectl describe pods -n retail-app | awk '/^Events:/{flag=1} flag; /^$/{flag=0}'
           echo "--- TARGET GROUPS ---"
           TG_ARN=$(aws elbv2 describe-target-groups --query 'TargetGroups[0].TargetGroupArn' --output text)
           aws elbv2 describe-target-health --target-group-arn $TG_ARN
-          echo "--- ALB CONTROLLER LOGS ---"
-          kubectl logs -n kube-system -l app.kubernetes.io/name=aws-load-balancer-controller --tail=150
-          echo "--- RESTARTING ALB CONTROLLER ---"
-          kubectl rollout restart deploy aws-load-balancer-controller -n kube-system
 
