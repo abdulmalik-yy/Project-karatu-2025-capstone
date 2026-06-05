@@ -1,5 +1,5 @@
 #--RETAIL-APP NAMESPACE--#
-resource "kubernetes_namespace" "retail_app" {
+resource "kubernetes_namespace_v1" "retail_app" {
   metadata {
     name = var.app_namespace
     labels = {

@@ -106,7 +106,7 @@ resource "aws_iam_role_policy_attachment" "eks-node-proxy-policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "eks-node-volumes-policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEBSCSIDriverPolicy"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
   role       = aws_iam_role.eks-node-role.name
 }
 
@@ -252,7 +252,7 @@ resource "aws_eks_addon" "kube_proxy" {
 
 resource "aws_eks_addon" "ebs_csi_driver" {
   cluster_name                = aws_eks_cluster.project-bedrock-cluster.name
-  addon_name                  = "ebs-csi-driver"
+  addon_name                  = "aws-ebs-csi-driver"
   service_account_role_arn    = aws_iam_role.eks-node-role.arn
   resolve_conflicts_on_create = "OVERWRITE"
   depends_on                  = [aws_iam_openid_connect_provider.eks]
