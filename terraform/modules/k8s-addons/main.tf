@@ -300,6 +300,12 @@ resource "aws_iam_policy" "lbc" {
   })
 }
 
+resource "aws_iam_role_policy_attachment" "lbc_attach" {
+  policy_arn = aws_iam_policy.lbc.arn
+  role       = aws_iam_role.lbc.name
+}
+
+
 #-- IRSA ROLE FOR CARTS (DynamoDB Access) --#
 data "aws_iam_policy_document" "carts_assume_role" {
   statement {
