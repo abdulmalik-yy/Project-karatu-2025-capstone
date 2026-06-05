@@ -78,3 +78,12 @@ jobs:
           kubectl apply -f ../../k8s/namespace.yaml
           kubectl apply -f ../../k8s/rbac.yaml
           kubectl apply -f ../../k8s/ingress.yaml
+
+      - name: Debug Load Balancer Controller
+        run: |
+          echo "Waiting 20 seconds for controller to process ingress..."
+          sleep 20
+          echo "--- INGRESS EVENTS ---"
+          kubectl describe ingress retail-store-ingress -n retail-app || true
+          echo "--- CONTROLLER LOGS ---"
+          kubectl logs -n kube-system -l app.kubernetes.io/name=aws-load-balancer-controller --tail=100 || true
