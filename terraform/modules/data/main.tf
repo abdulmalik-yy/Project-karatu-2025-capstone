@@ -20,10 +20,10 @@ resource "aws_security_group" "database-security-group" {
 
   # Ingress rule: Allow MySQL from EKS nodes
   ingress {
-    from_port       = 3306
-    to_port         = 3306
-    protocol        = "tcp"
-    security_groups = [var.eks_node_security_group_id]
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.this.cidr_block]
   }
 
   # Egress rule: Allow all to the Internet (for patching, etc.)
@@ -46,10 +46,10 @@ resource "aws_security_group" "database-security-group-rds" {
 
   # Ingress rule: Allow MySQL from EKS nodes
   ingress {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [var.eks_node_security_group_id]
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.this.cidr_block]
   }
 
   # Egress rule: Allow all to the Internet (for patching, etc.)
@@ -189,16 +189,24 @@ resource "aws_elasticache_subnet_group" "redis_subnet_grp" {
   }
 }
 
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
+data "aws_vpc" "this" {
+  id = var.vpc_id
+}
+
 resource "aws_security_group" "redis_sg" {
   name        = "project-bedrock-redis-sg"
   description = "Security group for Redis cluster"
   vpc_id      = var.vpc_id
 
   ingress {
-    from_port       = 6379
-    to_port         = 6379
-    protocol        = "tcp"
-    security_groups = [var.eks_node_security_group_id]
+    from_port   = 6379
+    to_port     = 6379
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.this.cidr_block]
   }
 
   egress {
