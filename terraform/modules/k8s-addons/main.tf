@@ -485,6 +485,11 @@ resource "helm_release" "ui" {
   version    = "1.6.1"
   namespace  = kubernetes_namespace_v1.retail_app.metadata[0].name
 
+  set {
+    name  = "service.type"
+    value = "LoadBalancer"
+  }
+
   depends_on = [
     helm_release.orders
   ]
