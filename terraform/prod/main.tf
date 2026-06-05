@@ -68,6 +68,7 @@ module "data" {
   vpc_id                     = module.network.vpc_id
   private_subnet_ids         = module.network.private_subnet_ids
   eks_node_security_group_id = module.compute.eks_node_security_group_id
+  eks_cluster_log_group_arn  = module.monitoring.eks_cluster_log_group_arn
 
   depends_on = [module.network, module.compute]
 }

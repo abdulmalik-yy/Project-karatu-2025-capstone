@@ -10,6 +10,8 @@ on:
       - main
     paths:
       - "terraform/**"
+      - "k8s/**"
+      - ".github/workflows/terraform-cd.yml"
 
 permissions:
   contents: read
@@ -50,7 +52,7 @@ jobs:
 
       # Step 4: Download providers and modules
       - name: Terraform Init
-        run: terraform init -input=false
+        run: terraform init -upgrade -input=false
 
       # Step 5: Validate the code one more time before applying
       - name: Terraform Validate
