@@ -1,5 +1,5 @@
 output "mysql_endpoint" {
-  value = aws_db_instance.mysql.endpoint
+  value = aws_db_instance.mysql.address
 }
 
 output "mysql_port" {
@@ -20,7 +20,7 @@ output "mysql_password" {
 }
 
 output "postgres_endpoint" {
-  value = aws_db_instance.postgres.endpoint
+  value = aws_db_instance.postgres.address
 }
 
 output "postgres_port" {
