@@ -165,7 +165,7 @@ resource "aws_eks_node_group" "project-bedrock-node-group" {
   node_group_name = "project-bedrock-node-group"
   node_role_arn   = aws_iam_role.eks-node-role.arn
   subnet_ids      = var.private_subnet_ids
-  instance_types  = ["t3.medium"]
+  instance_types  = ["t3.small"]
   disk_size       = 20
   tags = {
     Name = "project-bedrock-node-group"
