@@ -11,7 +11,6 @@ terraform {
 }
 provider "aws" {
   region  = "us-east-1"
-  profile = "abdulmalik_aws"
 
   default_tags {
     tags = {
@@ -34,9 +33,7 @@ provider "kubernetes" {
       "--cluster-name",
       module.compute.eks_cluster_name,
       "--region",
-      var.region,
-      "--profile",
-      "abdulmalik_aws"
+      var.region
     ]
   }
 }
@@ -56,9 +53,7 @@ provider "helm" {
         "--cluster-name",
         module.compute.eks_cluster_name,
         "--region",
-        var.region,
-        "--profile",
-        "abdulmalik_aws"
+        var.region
       ]
     }
   }

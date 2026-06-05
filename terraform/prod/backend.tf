@@ -5,6 +5,5 @@ terraform {
     bucket  = "bedrock-tfstate-alt-soe-025-350"
     key     = "project-bedrock/terraform.tfstate"
     region  = "us-east-1"
-    profile = "abdulmalik_aws"
   }
 }
