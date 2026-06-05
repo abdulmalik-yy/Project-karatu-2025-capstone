@@ -17,6 +17,7 @@ resource "aws_subnet" "public-subnet-01" {
   availability_zone = var.availability_zone_1
   tags = {
     Name = "public-subnet-01"
+    "kubernetes.io/role/elb" = "1"
   }
 }
 
@@ -26,6 +27,7 @@ resource "aws_subnet" "public-subnet-02" {
   availability_zone = var.availability_zone_2
   tags = {
     Name = "public-subnet-02"
+    "kubernetes.io/role/elb" = "1"
   }
 }
 
@@ -35,6 +37,7 @@ resource "aws_subnet" "private-subnet-01" {
   availability_zone = var.availability_zone_1
   tags = {
     Name = "private-subnet-01"
+    "kubernetes.io/role/internal-elb" = "1"
   }
 }
 
@@ -44,6 +47,7 @@ resource "aws_subnet" "private-subnet-02" {
   availability_zone = var.availability_zone_2
   tags = {
     Name = "private-subnet-02"
+    "kubernetes.io/role/internal-elb" = "1"
   }
 }
 
