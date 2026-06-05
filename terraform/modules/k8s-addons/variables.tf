@@ -21,12 +21,18 @@ variable "eks_cluster_name" {
 variable "mysql_endpoint" { type = string }
 variable "mysql_port" { type = number }
 variable "mysql_username" { type = string }
-variable "mysql_password" { type = string, sensitive = true }
+variable "mysql_password" {
+  type      = string
+  sensitive = true
+}
 
 variable "postgres_endpoint" { type = string }
 variable "postgres_port" { type = number }
 variable "postgres_username" { type = string }
-variable "postgres_password" { type = string, sensitive = true }
+variable "postgres_password" {
+  type      = string
+  sensitive = true
+}
 
 variable "redis_endpoint" { type = string }
 variable "redis_port" { type = number }
