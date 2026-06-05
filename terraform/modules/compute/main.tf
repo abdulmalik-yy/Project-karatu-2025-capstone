@@ -127,7 +127,8 @@ resource "aws_security_group" "eks-node-sg" {
   description = "Security group for EKS nodes"
   vpc_id      = var.vpc_id
   tags = {
-    Name = "eks-node-sg"
+    Name                                            = "eks-node-sg"
+    "kubernetes.io/cluster/${var.eks_cluster_name}" = "owned"
   }
 
   #All traffic between nodes
