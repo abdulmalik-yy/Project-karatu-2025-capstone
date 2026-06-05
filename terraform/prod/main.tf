@@ -95,5 +95,17 @@ module "k8s_addons" {
   cluster_oidc_arn = module.compute.oidc_provider_arn
   app_namespace    = var.application_namespace
 
-  depends_on = [module.compute]
+  mysql_endpoint      = module.data.mysql_endpoint
+  mysql_port          = module.data.mysql_port
+  mysql_username      = module.data.mysql_username
+  mysql_password      = module.data.mysql_password
+  postgres_endpoint   = module.data.postgres_endpoint
+  postgres_port       = module.data.postgres_port
+  postgres_username   = module.data.postgres_username
+  postgres_password   = module.data.postgres_password
+  redis_endpoint      = module.data.redis_endpoint
+  redis_port          = module.data.redis_port
+  dynamodb_table_name = module.dynamodb.table_name
+
+  depends_on = [module.compute, module.data, module.dynamodb]
 }

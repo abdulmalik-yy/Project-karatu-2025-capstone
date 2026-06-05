@@ -300,4 +300,173 @@ resource "aws_iam_policy" "lbc" {
   })
 }
 
+#-- IRSA ROLE FOR CARTS (DynamoDB Access) --#
+data "aws_iam_policy_document" "carts_assume_role" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+    principals {
+      type        = "Federated"
+      identifiers = [var.cluster_oidc_arn]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "${element(split("oidc-provider/", var.cluster_oidc_arn), 1)}:sub"
+      values   = ["system:serviceaccount:${var.app_namespace}:carts"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "${element(split("oidc-provider/", var.cluster_oidc_arn), 1)}:aud"
+      values   = ["sts.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "carts_irsa" {
+  name               = "${var.eks_cluster_name}-carts-irsa-role"
+  assume_role_policy = data.aws_iam_policy_document.carts_assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "carts_dynamodb" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
+  role       = aws_iam_role.carts_irsa.name
+}
+
+
+#-- HELM RELEASES --#
+
+resource "helm_release" "aws_load_balancer_controller" {
+  name       = "aws-load-balancer-controller"
+  repository = "https://aws.github.io/eks-charts"
+  chart      = "aws-load-balancer-controller"
+  namespace  = "kube-system"
+
+  set {
+    name  = "clusterName"
+    value = var.eks_cluster_name
+  }
+
+  set {
+    name  = "serviceAccount.create"
+    value = "true"
+  }
+
+  set {
+    name  = "serviceAccount.name"
+    value = "aws-load-balancer-controller"
+  }
+
+  set {
+    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+    value = aws_iam_role.lbc.arn
+  }
+}
+
+resource "helm_release" "catalog" {
+  name       = "catalog"
+  repository = "oci://public.ecr.aws/aws-containers"
+  chart      = "retail-store-sample-catalog-chart"
+  version    = "1.6.1"
+  namespace  = kubernetes_namespace_v1.retail_app.metadata[0].name
+
+  set {
+    name  = "app.persistence.provider"
+    value = "mysql"
+  }
+  set {
+    name  = "app.persistence.endpoint"
+    value = "${var.mysql_endpoint}:${var.mysql_port}"
+  }
+  set {
+    name  = "app.persistence.secret.username"
+    value = var.mysql_username
+  }
+  set {
+    name  = "app.persistence.secret.password"
+    value = var.mysql_password
+  }
+}
+
+resource "helm_release" "carts" {
+  name       = "carts"
+  repository = "oci://public.ecr.aws/aws-containers"
+  chart      = "retail-store-sample-cart-chart"
+  version    = "1.6.1"
+  namespace  = kubernetes_namespace_v1.retail_app.metadata[0].name
+
+  set {
+    name  = "app.persistence.provider"
+    value = "dynamodb"
+  }
+  set {
+    name  = "app.persistence.dynamodb.tableName"
+    value = var.dynamodb_table_name
+  }
+  set {
+    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+    value = aws_iam_role.carts_irsa.arn
+  }
+}
+
+resource "helm_release" "checkout" {
+  name       = "checkout"
+  repository = "oci://public.ecr.aws/aws-containers"
+  chart      = "retail-store-sample-checkout-chart"
+  version    = "1.6.1"
+  namespace  = kubernetes_namespace_v1.retail_app.metadata[0].name
+
+  set {
+    name  = "app.persistence.provider"
+    value = "redis"
+  }
+  set {
+    name  = "app.persistence.redis.endpoint"
+    value = "${var.redis_endpoint}:${var.redis_port}"
+  }
+}
+
+resource "helm_release" "orders" {
+  name       = "orders"
+  repository = "oci://public.ecr.aws/aws-containers"
+  chart      = "retail-store-sample-orders-chart"
+  version    = "1.6.1"
+  namespace  = kubernetes_namespace_v1.retail_app.metadata[0].name
+
+  set {
+    name  = "app.persistence.provider"
+    value = "postgres"
+  }
+  set {
+    name  = "app.persistence.endpoint"
+    value = "${var.postgres_endpoint}:${var.postgres_port}"
+  }
+  set {
+    name  = "app.persistence.database"
+    value = "orders"
+  }
+  set {
+    name  = "app.persistence.secret.username"
+    value = var.postgres_username
+  }
+  set {
+    name  = "app.persistence.secret.password"
+    value = var.postgres_password
+  }
+}
+
+resource "helm_release" "ui" {
+  name       = "ui"
+  repository = "oci://public.ecr.aws/aws-containers"
+  chart      = "retail-store-sample-ui-chart"
+  version    = "1.6.1"
+  namespace  = kubernetes_namespace_v1.retail_app.metadata[0].name
+
+  depends_on = [
+    helm_release.catalog,
+    helm_release.carts,
+    helm_release.checkout,
+    helm_release.orders
+  ]
+}
+
 
