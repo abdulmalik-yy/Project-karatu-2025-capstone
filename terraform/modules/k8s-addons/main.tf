@@ -360,6 +360,16 @@ resource "helm_release" "aws_load_balancer_controller" {
     name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
     value = aws_iam_role.lbc.arn
   }
+
+  set {
+    name  = "vpcId"
+    value = var.vpc_id
+  }
+
+  set {
+    name  = "region"
+    value = var.aws_region
+  }
 }
 
 resource "helm_release" "catalog" {
@@ -385,6 +395,8 @@ resource "helm_release" "catalog" {
     name  = "app.persistence.secret.password"
     value = var.mysql_password
   }
+
+  depends_on = [helm_release.aws_load_balancer_controller]
 }
 
 resource "helm_release" "carts" {
@@ -406,6 +418,8 @@ resource "helm_release" "carts" {
     name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
     value = aws_iam_role.carts_irsa.arn
   }
+
+  depends_on = [helm_release.catalog]
 }
 
 resource "helm_release" "checkout" {
@@ -423,6 +437,8 @@ resource "helm_release" "checkout" {
     name  = "app.persistence.redis.endpoint"
     value = "${var.redis_endpoint}:${var.redis_port}"
   }
+
+  depends_on = [helm_release.carts]
 }
 
 resource "helm_release" "orders" {
@@ -452,6 +468,8 @@ resource "helm_release" "orders" {
     name  = "app.persistence.secret.password"
     value = var.postgres_password
   }
+
+  depends_on = [helm_release.checkout]
 }
 
 resource "helm_release" "ui" {
@@ -462,9 +480,6 @@ resource "helm_release" "ui" {
   namespace  = kubernetes_namespace_v1.retail_app.metadata[0].name
 
   depends_on = [
-    helm_release.catalog,
-    helm_release.carts,
-    helm_release.checkout,
     helm_release.orders
   ]
 }

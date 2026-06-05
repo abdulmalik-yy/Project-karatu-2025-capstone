@@ -94,6 +94,7 @@ module "k8s_addons" {
   aws_region       = var.region
   cluster_oidc_arn = module.compute.oidc_provider_arn
   app_namespace    = var.application_namespace
+  vpc_id           = module.network.vpc_id
 
   mysql_endpoint      = module.data.mysql_endpoint
   mysql_port          = module.data.mysql_port

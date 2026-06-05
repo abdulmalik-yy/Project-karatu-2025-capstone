@@ -18,6 +18,11 @@ variable "eks_cluster_name" {
   type        = string
 }
 
+variable "vpc_id" {
+  description = "VPC ID where the cluster resides"
+  type        = string
+}
+
 variable "mysql_endpoint" { type = string }
 variable "mysql_port" { type = number }
 variable "mysql_username" { type = string }
