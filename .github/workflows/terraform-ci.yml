@@ -1,0 +1,110 @@
+name: "Terraform CI -- Plan on Pull Request"
+
+# This workflow runs every time someone opens or updates a Pull Request
+# targeting the main branch. It runs 'terraform plan' and posts the
+# result as a comment on the PR so reviewers can see what will change
+# BEFORE they approve and merge.
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "terraform/**"
+
+permissions:
+  contents: read       # to checkout the code
+  pull-requests: write # to post the plan as a PR comment
+
+jobs:
+  terraform-plan:
+    name: "Terraform Plan"
+    runs-on: ubuntu-latest
+
+    # Set the working directory so every terraform command runs inside terraform/prod/
+    defaults:
+      run:
+        working-directory: terraform/prod
+
+    steps:
+      # Step 1: Download the code from GitHub onto the runner machine
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Install a specific version of Terraform on the runner
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.0"
+
+      # Step 3: Give the runner permission to talk to AWS.
+      # AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are stored as
+      # GitHub Repository Secrets (never in code).
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      # Step 4: Download all required Terraform providers and modules.
+      # '-input=false' means do not prompt for any input (needed for CI).
+      - name: Terraform Init
+        id: init
+        run: terraform init -input=false
+
+      # Step 5: Check if the code is properly formatted (style check).
+      # '-check' exits with an error if formatting is wrong without changing files.
+      - name: Terraform Format Check
+        id: fmt
+        run: terraform fmt -check -recursive
+        continue-on-error: true  # Do not fail the pipeline just for style issues
+
+      # Step 6: Validate the configuration is syntactically correct.
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      # Step 7: Generate the plan. Saves it to a file called 'tfplan'.
+      # '-no-color' keeps the output readable when posted as a PR comment.
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color -input=false -out=tfplan
+        continue-on-error: true  # capture exit code but don't fail yet
+
+      # Step 8: Post the plan output as a comment on the PR.
+      # This is the most important step -- it lets reviewers see the
+      # impact of the changes before approving the merge.
+      - name: Post Plan as PR Comment
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format: \`${{ steps.fmt.outcome }}\`
+            #### Terraform Validate: \`${{ steps.validate.outcome }}\`
+            #### Terraform Plan: \`${{ steps.plan.outcome }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`terraform
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+
+            *Workflow: \`${{ github.workflow }}\`, Action: \`${{ github.event_name }}\`, Actor: \`${{ github.actor }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });
+
+      # Step 9: Fail the workflow if the plan itself had errors
+      - name: Check Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1

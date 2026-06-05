@@ -1,0 +1,80 @@
+name: "Terraform CD -- Apply on Merge to Main"
+
+# This workflow runs automatically when code is MERGED into main.
+# It runs 'terraform apply' to actually create/update your AWS resources.
+# WARNING: This makes real changes. Always review the Plan (from CI) first!
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "terraform/**"
+
+permissions:
+  contents: read
+
+jobs:
+  terraform-apply:
+    name: "Terraform Apply"
+    runs-on: ubuntu-latest
+
+    # Set the working directory so every terraform command runs inside terraform/prod/
+    defaults:
+      run:
+        working-directory: terraform/prod
+
+    # Prevent two applies running at the same time (concurrency lock)
+    concurrency:
+      group: terraform-apply
+      cancel-in-progress: false
+
+    steps:
+      # Step 1: Download the code from GitHub onto the runner
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Install Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.0"
+
+      # Step 3: Authenticate to AWS using secrets stored in GitHub
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      # Step 4: Download providers and modules
+      - name: Terraform Init
+        run: terraform init -input=false
+
+      # Step 5: Validate the code one more time before applying
+      - name: Terraform Validate
+        run: terraform validate -no-color
+
+      # Step 6: Apply all changes.
+      # '-auto-approve' skips the manual "yes" prompt (required for CI).
+      # The state is stored in the S3 bucket defined in backend.tf,
+      # so it is shared across all runs.
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -input=false
+
+      # Step 7: Configure kubectl so post-apply steps can talk to the cluster.
+      # This uses the AWS CLI, which is pre-installed on GitHub runners.
+      - name: Configure kubectl
+        run: |
+          aws eks update-kubeconfig \
+            --region us-east-1 \
+            --name project-bedrock-cluster
+
+      # Step 8: Apply the Kubernetes manifests (namespace, RBAC, Ingress).
+      # These are in the k8s/ folder of the repo.
+      - name: Apply Kubernetes Manifests
+        run: |
+          kubectl apply -f ../../k8s/namespace.yaml
+          kubectl apply -f ../../k8s/rbac.yaml
+          kubectl apply -f ../../k8s/ingress.yaml

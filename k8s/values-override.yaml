@@ -1,0 +1,16 @@
+#--in-cluster services --#
+
+rabbitmq:
+  enabled: true
+  
+redis:
+  enabled: true
+
+#--Disable all in-cluster services --#
+
+mysql:
+  enabled: false
+
+postgresql:
+  enabled: false
+  

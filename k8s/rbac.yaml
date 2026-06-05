@@ -1,0 +1,39 @@
+# =============================================================================
+# rbac.yaml
+#
+# PURPOSE:
+#   Grant the IAM user "bedrock-dev-view" read-only access to the
+#   retail-app namespace inside the EKS cluster.
+#
+# HOW KUBERNETES RBAC WORKS (beginner explanation):
+#   - A "ClusterRole" defines WHAT someone is allowed to do (verbs + resources).
+#     We reuse the built-in "view" ClusterRole which already grants read-only access.
+#   - A "ClusterRoleBinding" says WHO gets that role.
+#     Here, we bind the IAM user "bedrock-dev-view" to the built-in "view" role.
+#
+# HOW IAM + KUBERNETES AUTH WORKS:
+#   AWS EKS maps IAM identities to Kubernetes users via the
+#   "aws-auth" ConfigMap (or the newer Access Entries).
+#   The bedrock-dev-view IAM user must also be added to that ConfigMap
+#   (done via Terraform in the compute module or via 'kubectl edit cm aws-auth').
+# =============================================================================
+
+---
+# ClusterRoleBinding: gives the bedrock-dev-view user read-only access
+# to cluster-wide resources (pods, services, deployments, logs, etc.)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: bedrock-dev-view-binding
+  labels:
+    project: karatu-2025-capstone
+# "roleRef" points to the role being granted
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view         # built-in Kubernetes ClusterRole -- grants read-only access
+# "subjects" lists WHO receives this role
+subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: bedrock-dev-view   # must match the username set in aws-auth ConfigMap
