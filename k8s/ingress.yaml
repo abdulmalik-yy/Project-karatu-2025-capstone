@@ -29,7 +29,7 @@ metadata:
     project: karatu-2025-capstone
   annotations:
     # Force ALB controller to re-evaluate after subnet tags were added
-    force-update: "2"
+    force-update: "3"
 
     # Tell Kubernetes to use the AWS Load Balancer Controller
     kubernetes.io/ingress.class: alb
