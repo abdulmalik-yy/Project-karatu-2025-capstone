@@ -386,6 +386,10 @@ resource "helm_release" "catalog" {
   namespace  = kubernetes_namespace_v1.retail_app.metadata[0].name
 
   set {
+    name  = "fullnameOverride"
+    value = "catalog"
+  }
+  set {
     name  = "app.persistence.provider"
     value = "mysql"
   }
@@ -413,6 +417,10 @@ resource "helm_release" "carts" {
   namespace  = kubernetes_namespace_v1.retail_app.metadata[0].name
 
   set {
+    name  = "fullnameOverride"
+    value = "carts"
+  }
+  set {
     name  = "app.persistence.provider"
     value = "dynamodb"
   }
@@ -436,6 +444,10 @@ resource "helm_release" "checkout" {
   namespace  = kubernetes_namespace_v1.retail_app.metadata[0].name
 
   set {
+    name  = "fullnameOverride"
+    value = "checkout"
+  }
+  set {
     name  = "app.persistence.provider"
     value = "redis"
   }
@@ -454,6 +466,10 @@ resource "helm_release" "orders" {
   version    = "1.6.1"
   namespace  = kubernetes_namespace_v1.retail_app.metadata[0].name
 
+  set {
+    name  = "fullnameOverride"
+    value = "orders"
+  }
   set {
     name  = "app.persistence.provider"
     value = "postgres"
@@ -484,6 +500,11 @@ resource "helm_release" "ui" {
   chart      = "retail-store-sample-ui-chart"
   version    = "1.6.1"
   namespace  = kubernetes_namespace_v1.retail_app.metadata[0].name
+
+  set {
+    name  = "fullnameOverride"
+    value = "ui"
+  }
 
   set {
     name  = "service.type"
