@@ -84,7 +84,11 @@ jobs:
       - name: Debug Cluster Status
         run: |
           echo "--- RESTARTING ALL PODS ---"
-          kubectl rollout restart deploy -n retail-app --all
+          kubectl rollout restart deploy ui -n retail-app || true
+          kubectl rollout restart deploy catalog -n retail-app || true
+          kubectl rollout restart deploy carts -n retail-app || true
+          kubectl rollout restart deploy orders -n retail-app || true
+          kubectl rollout restart deploy checkout -n retail-app || true
           echo "Sleeping 45 seconds to let pods schedule..."
           sleep 45
           echo "--- PODS AFTER RESTART ---"
