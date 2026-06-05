@@ -40,5 +40,5 @@ output "oidc_provider_arn" {
 
 output "eks_node_security_group_id" {
   description = "Security group ID for EKS worker nodes"
-  value       = aws_security_group.eks-node-sg.id
+  value       = aws_eks_cluster.project-bedrock-cluster.vpc_config[0].cluster_security_group_id
 }
