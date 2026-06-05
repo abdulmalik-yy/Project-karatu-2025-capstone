@@ -78,7 +78,9 @@ module "dynamodb" {
   source = "../modules/dynamodb"
 
   table_name     = "project-bedrock-cart"
-  hash_key       = "cartId"
+  hash_key       = "id"
+  gsi_name       = "idx_global_customerId"
+  gsi_hash_key   = "customerId"
   billing_mode   = "PAY_PER_REQUEST"
   read_capacity  = 0
   write_capacity = 0

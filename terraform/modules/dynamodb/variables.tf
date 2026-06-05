@@ -23,7 +23,19 @@ variable "read_capacity" {
 }
 
 variable "write_capacity" {
-  description = "Write capacity units (if PROVISIONED)"
+  description = "DynamoDB write capacity"
   type        = number
-  default     = 5
+  default     = 0
+}
+
+variable "gsi_name" {
+  description = "Global Secondary Index Name"
+  type        = string
+  default     = ""
+}
+
+variable "gsi_hash_key" {
+  description = "Global Secondary Index Hash Key"
+  type        = string
+  default     = ""
 }
