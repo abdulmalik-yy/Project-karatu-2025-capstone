@@ -41,7 +41,7 @@ metadata:
     alb.ingress.kubernetes.io/target-type: ip
 
     # Health check settings -- ALB checks this path to know if pods are healthy
-    alb.ingress.kubernetes.io/healthcheck-path: /actuator/health
+    alb.ingress.kubernetes.io/healthcheck-path: /actuator/health/readiness
     alb.ingress.kubernetes.io/healthcheck-interval-seconds: "30"
     alb.ingress.kubernetes.io/healthcheck-timeout-seconds: "5"
     alb.ingress.kubernetes.io/healthy-threshold-count: "2"
