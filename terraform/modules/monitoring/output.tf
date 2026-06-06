@@ -19,3 +19,13 @@ output "bedrock_dev_password" {
   description = "Password for the bedrock-dev-view user"
   value       = aws_iam_user_login_profile.dev.password
 }
+
+output "bedrock_dev_access_key" {
+  description = "Access key ID for the bedrock-dev-view user"
+  value       = aws_iam_access_key.dev.id
+}
+
+output "bedrock_dev_secret_key" {
+  description = "Secret access key for the bedrock-dev-view user"
+  value       = aws_iam_access_key.dev.secret
+}

@@ -15,6 +15,16 @@ output "bedrock_dev_password" {
   value       = nonsensitive(module.monitoring.bedrock_dev_password)
 }
 
+output "bedrock_dev_access_key" {
+  description = "The access key ID for the bedrock-dev-view IAM user"
+  value       = module.monitoring.bedrock_dev_access_key
+}
+
+output "bedrock_dev_secret_key" {
+  description = "The secret access key for the bedrock-dev-view IAM user"
+  value       = nonsensitive(module.monitoring.bedrock_dev_secret_key)
+}
+
 output "cluster_name" {
   description = "Name of the EKS cluster"
   value       = module.compute.eks_cluster_name
