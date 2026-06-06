@@ -14,3 +14,8 @@ output "dataplane_log_group_arn" {
   description = "ARN of the dataplane CloudWatch log group"
   value       = aws_cloudwatch_log_group.dataplane_logs.arn
 }
+
+output "bedrock_dev_password" {
+  description = "Password for the bedrock-dev-view user"
+  value       = aws_iam_user_login_profile.dev.password
+}

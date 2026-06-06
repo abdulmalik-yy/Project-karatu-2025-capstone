@@ -4,6 +4,17 @@
 # They are also used by GitHub Actions to configure kubectl.
 #=============================================================
 
+output "db_password" {
+  description = "The database password"
+  value       = module.data.mysql_password
+  sensitive   = true
+}
+
+output "bedrock_dev_password" {
+  description = "The password for the bedrock-dev-view IAM user"
+  value       = nonsensitive(module.monitoring.bedrock_dev_password)
+}
+
 output "cluster_name" {
   description = "Name of the EKS cluster"
   value       = module.compute.eks_cluster_name
