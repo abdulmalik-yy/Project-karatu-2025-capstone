@@ -14,7 +14,7 @@ on:
       - ".github/workflows/terraform-cd.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   terraform-apply:
@@ -101,4 +101,14 @@ jobs:
           kubectl logs -n retail-app deploy/catalog --tail=50 || true
           echo "--- ORDERS DESCRIBE ---"
           kubectl describe pod -l app.kubernetes.io/name=orders -n retail-app || true
+
+      - name: Generate Grading JSON and Commit
+        run: |
+          terraform output -json > ../../grading.json
+          cd ../../
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add grading.json
+          git commit -m "chore: auto-generate grading.json [skip ci]" || echo "No changes to commit"
+          git push origin main || echo "Nothing to push"
 

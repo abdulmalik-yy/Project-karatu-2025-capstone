@@ -31,6 +31,6 @@ resource "aws_dynamodb_table" "table" {
 
   tags = {
     Name    = var.table_name
-    project = "karatu-2025-capstone"
+    Project = "karatu-2025-capstone"
   }
 }
